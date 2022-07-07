@@ -5,6 +5,7 @@ library(scran)
 library(dplyr)
 library(shinyAce)
 library(shinydashboard)
+library(ggalluvial)
 
 # sce <- HCATonsilData::HCATonsilData(cellType = "epithelial")
 
@@ -181,7 +182,8 @@ labelle <- function(sce, cell_dictionary = NULL) {
             ),
             column(
               width = 6,
-              "somthin"
+              h2("som'thin' to think about!"),
+              uiOutput("ui_ideas_collection")
             )
           )
         )
@@ -245,137 +247,37 @@ labelle <- function(sce, cell_dictionary = NULL) {
         plotOutput("anno_alluvial"),
         plotOutput("anno_chord"),
         plotOutput("anno_donut") # make interactive?
-
       )
     })
 
     output$anno_alluvial <- renderPlot({
-      cd_anno <- colData(rv$anno_sce)
-
-      anno_left <- input$start_annotation
-      anno_right <- input$end_annotation
-      anno_colorfill <- input$color_annotation
-
-      tbl_anno <- table(
-        cd_anno[[anno_left]],
-        cd_anno[[anno_right]]
-      )
-      names(dimnames(tbl_anno)) <-
-        c(anno_left, anno_right)
-
-      df_tbl_anno <- as.data.frame(tbl_anno)
-      colnames(df_tbl_anno)[3] <- "Number of cells"
-
-      p <- ggplot(df_tbl_anno,
-             aes(y = `Number of cells`,
-                        axis1 = .data[[anno_left]], axis2 = .data[[anno_right]])) +
-        theme_bw() +
-        geom_alluvium(aes(fill = .data[[anno_colorfill]]), width = 1/12) +
-        geom_stratum(width = 1/12, fill = "black", color = "grey") +
-        geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
-        scale_x_discrete(limits = c(input$start_annotation, input$end_annotation), expand = c(.2, .2)) +
-        scale_fill_brewer(type = "qual", palette = "Set1")
-
-      p
+      annotation_alluvial(
+        sce = rv$anno_sce,
+        colData1 = input$start_annotation,
+        colData2 = input$end_annotation,
+        color_by = input$color_annotation)
     })
 
     output$anno_chord <- renderPlot({
-      cd_anno <- colData(rv$anno_sce)
-
-      anno_left <- input$start_annotation
-      anno_right <- input$end_annotation
-      anno_colorfill <- input$color_annotation
-
-      tbl_anno <- table(
-        cd_anno[[anno_left]],
-        cd_anno[[anno_right]]
-      )
-
-      names(dimnames(tbl_anno)) <-
-        c(anno_left, anno_right)
-
-      df_tbl_anno <- as.data.frame(tbl_anno)
-
-      m <- as.matrix(tbl_anno)
-
-      message("here1")
-      message(dim(m))
-      row_cols <- hcl.colors(nrow(m), "Temps")
-      message("here2")
-
-      if(nrow(m) > 1) {
-        cols_grid_rows <- hcl.colors(nrow(m), "Temps")
-      } else {
-        cols_grid_rows <- "lightgrey"
-      }
-
-      if(ncol(m) > 1) {
-        cols_grid_columns <- hcl.colors(ncol(m), "Temps")
-      } else {
-        cols_grid_columns <- "lightgrey"
-      }
-
-
-      grid_cols <- setNames(
-        object = c(
-          cols_grid_rows,
-          cols_grid_columns
-        ),
-        nm = c(rownames(m), colnames(m))
-      )
-
-      message("here")
-
-      circlize::chordDiagram(m,
-                             col = NULL,
-                             row.col = row_cols,
-                             grid.col = grid_cols,
-                             transparency = 0.5,
-                             link.lwd = 1,    # Line width
-                             link.lty = 1,    # Line type
-                             link.border = 1) # Border color)
-
-      # going interactive:
-      # chorddiag::chorddiag(m, type = "bipartite")
+      annotation_chord(
+        sce = rv$anno_sce,
+        colData1 = input$start_annotation,
+        colData2 = input$end_annotation,
+        color_by = input$color_annotation)
     })
 
     output$anno_donut <- renderPlot({
-      cd_anno <- colData(rv$anno_sce)
+      annotation_donut(rv$anno_sce, input$end_annotation)
+    })
 
-      df_anno <- as.data.frame(
-        table(cd_anno[[input$end_annotation]])
+    output$ui_ideas_collection <- renderUI({
+      tagList(
+        h4("Interface in some way to celltypist?"),
+        h4("Is there a way to communicate properly with cellxgene?"),
+        h4("Can we think of a clever way to resolve conflicts in annotation?"),
+        h4("Some interfacing to the API/content of the Cell Ontology project?"),
+        h4("Some form of reporting a small-mid set of summary representations for the annotated features?")
       )
-
-      category <- input$end_annotation
-      colnames(df_anno) <- c(category, "Number of cells")
-
-      # Compute percentages
-      df_anno$fraction <- df_anno$`Number of cells` / sum(df_anno$`Number of cells`)
-
-      # Compute the cumulative percentages (top of each rectangle)
-      df_anno$ymax <- cumsum(df_anno$fraction)
-
-      # Compute the bottom of each rectangle
-      df_anno$ymin <- c(0, head(df_anno$ymax, n=-1))
-
-      # Compute label position
-      df_anno$labelPosition <- (df_anno$ymax + df_anno$ymin) / 2
-
-      # Compute a good label
-      df_anno$label <- paste0(df_anno[[category]], "\n value: ", df_anno$`Number of cells`)
-
-      # Make the plot
-      p <- ggplot(df_anno, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=.data[[category]])) +
-        geom_rect() +
-        geom_label( x=3.5, aes(y=labelPosition, label=label), size=6) +
-        scale_fill_brewer(type = "qual", palette = "Set1") +
-        coord_polar(theta="y") +
-        xlim(c(2, 4)) +
-        theme_void() +
-        theme(legend.position = "none")
-
-      p
-
     })
 
     observeEvent(input$btn_label, {
@@ -472,15 +374,5 @@ labelle <- function(sce, cell_dictionary = NULL) {
 
   shinyApp(labelle_ui, labelle_server)
 
-}
-
-.actionbutton_biocstyle <- "color: #ffffff; background-color: #0092AC"
-.helpbutton_biocstyle <- "color: #0092AC; background-color: #FFFFFF; border-color: #FFFFFF"
-
-editor_to_vector_sanitized <- function(txt) {
-  rn <- strsplit(txt, split="\n")[[1]]
-  rn <- sub("#.*", "", rn)
-  rn <- sub("^ +", "", rn)
-  sub(" +$", "", rn)
 }
 
