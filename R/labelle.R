@@ -17,6 +17,15 @@ cell_dictionary <- c(
 )
 
 
+#' Title
+#'
+#' @param sce
+#' @param cell_dictionary
+#'
+#' @return
+#' @export
+#'
+#' @examples
 labelle <- function(sce, cell_dictionary = NULL) {
   rv <- reactiveValues()
   rv$anno_sce <- sce

@@ -1,3 +1,14 @@
+#' Title
+#'
+#' @param sce
+#' @param colData1
+#' @param colData2
+#' @param color_by
+#'
+#' @return
+#' @export
+#'
+#' @examples
 annotation_alluvial <- function(sce,
                                 colData1,
                                 colData2,
@@ -40,6 +51,17 @@ annotation_alluvial <- function(sce,
 
 
 
+#' Title
+#'
+#' @param sce
+#' @param colData1
+#' @param colData2
+#' @param color_by
+#'
+#' @return
+#' @export
+#'
+#' @examples
 annotation_chord <- function(sce,
                              colData1,
                              colData2,
@@ -109,6 +131,17 @@ annotation_chord <- function(sce,
 
 }
 
+#' Title
+#'
+#' @param sce
+#' @param colData1
+#' @param colData2
+#' @param color_by
+#'
+#' @return
+#' @export
+#'
+#' @examples
 annotation_chord_interactive <- function(sce,
                              colData1,
                              colData2,
@@ -171,6 +204,15 @@ annotation_chord_interactive <- function(sce,
 
 
 
+#' Title
+#'
+#' @param sce
+#' @param colData1
+#'
+#' @return
+#' @export
+#'
+#' @examples
 annotation_donut <- function(sce,
                              colData1) {
 
