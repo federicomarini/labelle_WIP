@@ -1,0 +1,6 @@
+element;intro
+#Welcome;Welcome to the interactive tour for <code>labelle</code>!<br><br>Here you will get to know the functionality included in this application.
+#mymenu;Here is where you can move around the different tabs of <code>labelle</code>.
+#btn_label;Just some element to nicely refer to.
+#btn_export_log;Just some other element to nicely refer to.
+#thanks;Thank you for taking the main panel tour of <code>labelle</code>!
