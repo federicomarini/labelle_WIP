@@ -75,6 +75,21 @@ labelle <- function(sce, cell_dictionary = NULL) {
           )
         )
       ),
+
+      fluidRow(
+        column(
+          width = 11
+        ),
+        column(
+          width = 1,
+          actionButton(
+            "tour_labelle",
+            label = "", icon = icon("question-circle"),
+            style = .helpbutton_biocstyle
+          )
+        )
+      ),
+
       fluidRow(
         shinydashboard::box(
           title = "Provided data",
@@ -369,6 +384,14 @@ labelle <- function(sce, cell_dictionary = NULL) {
 
     output$selected_celltype <- renderUI({
       celltype_2_html(input$celltypedia_select)
+    })
+
+    observeEvent(input$tour_labelle, {
+      tour <- read.delim(system.file("extdata", "tour_welcome.txt", package = "labelle"),
+                         sep = ";", stringsAsFactors = FALSE,
+                         row.names = NULL, quote = ""
+      )
+      rintrojs::introjs(session, options = list(steps = tour))
     })
 
     observeEvent(input$btn_label, {
