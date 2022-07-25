@@ -30,6 +30,9 @@ labelle <- function(sce, cell_dictionary = NULL) {
   rv <- reactiveValues()
   rv$anno_sce <- sce
 
+
+  rv$cell_dictionary <- cell_dictionary
+
   rv$cell_selected <- NULL
 
   # here: some sanitization on the cell_dictionary?
@@ -377,6 +380,30 @@ labelle <- function(sce, cell_dictionary = NULL) {
 
     observeEvent(input$btn_import_dictionary, {
       showNotification("TODO - importing the dictionary on the fly?...", type = "default")
+      showNotification("We do get something via ontoProc!", type = "message")
+
+      # load ontoProc and co.
+      library("ontoProc")
+      cl <- getCellOnto()
+
+      # store and update the reactive!
+      all_cl_terms <- cl$name
+      all_cl_ids <- cl$id
+
+      sorted_cl_terms <- sort(all_cl_terms)
+
+      # keeping only the cl ones?
+      sorted_cl_terms <- sorted_cl_terms[grepl("^CL:", names(sorted_cl_terms))]
+
+      message("found ", length(sorted_cl_terms), " entries")
+      rv$cell_dictionary <- unname(sorted_cl_terms)
+
+      message("found ", length(rv$cell_dictionary), " entries")
+      updateSelectizeInput(session,
+                           inputId = "id_label",
+                           choices = rv$cell_dictionary,
+                           server = TRUE)
+      showNotification("updated!!!", type = "message")
     })
 
   }
