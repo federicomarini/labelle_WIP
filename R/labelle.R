@@ -200,6 +200,32 @@ labelle <- function(sce, cell_dictionary = NULL) {
           )
         )
 
+      ),
+
+      fluidRow(
+        shinydashboard::box(
+          title = "Exploring the cell types",
+          width = 12,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          fluidRow(
+            column(
+              width = 6,
+              uiOutput("ui_celltypedia")
+            ),
+            column(
+              width = 6,
+              "some links or some other info",
+              HTML(
+                paste0(
+                  tags$b("Even something"), tags$br(),
+                  "Like this: ", tags$br(),
+                  tags$code(fortunes::fortune())
+                )
+              )
+            )
+          )
+        )
       )
     )
   )
@@ -288,8 +314,24 @@ labelle <- function(sce, cell_dictionary = NULL) {
         h4("Is there a way to communicate properly with cellxgene?"),
         h4("Can we think of a clever way to resolve conflicts in annotation?"),
         h4("Some interfacing to the API/content of the Cell Ontology project?"),
-        h4("Some form of reporting a small-mid set of summary representations for the annotated features?")
+        h4("Some form of reporting a small-mid set of summary representations for the annotated features?"),
+        h4("Some form of celltypepedia, especially if retrieved from other sources where the infos are in?")
       )
+    })
+
+    output$ui_celltypedia <- renderUI({
+      tagList(
+        selectInput(
+          inputId = "celltypedia_select",
+          label = "Select a cell type to retrieve more info from",
+          choices = cell_dictionary
+        ),
+        htmlOutput("selected_celltype")
+      )
+    })
+
+    output$selected_celltype <- renderUI({
+      celltype_2_html(input$celltypedia_select)
     })
 
     observeEvent(input$btn_label, {
