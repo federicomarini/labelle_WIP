@@ -51,6 +51,21 @@ labelle <- function(sce, cell_dictionary = NULL) {
     header = shinydashboard::dashboardHeader(disable = TRUE),
     sidebar = shinydashboard::dashboardSidebar(disable = TRUE),
     body = shinydashboard::dashboardBody(
+      # activate rintrojs based tours
+      rintrojs::introjsUI(),
+      ## Define output size and style of error messages
+      tags$head(
+        tags$style(
+          HTML(
+            ".shiny-output-error-validation {
+            font-size: 15px;
+            color: forestgreen;
+            text-align: center;
+            }
+            "
+          )
+        )
+      ),
       fluidRow(
         shinydashboard::box(
           title = "Provided data",
