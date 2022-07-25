@@ -35,6 +35,15 @@ labelle <- function(sce, cell_dictionary = NULL) {
 
   rv$cell_selected <- NULL
 
+  # initializing the log of the operations
+  rv$log_entries <- data.frame(
+    timestamp = vector(mode = "character"),
+    label_assigned = vector(mode = "character"),
+    which_cells = vector(mode = "character"),
+    rationale = vector(mode = "character"),
+    user = vector(mode = "character")
+  )
+
   # here: some sanitization on the cell_dictionary?
 
 
