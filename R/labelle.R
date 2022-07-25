@@ -207,7 +207,13 @@ labelle <- function(sce, cell_dictionary = NULL) {
               actionButton(inputId = "btn_download_anno_sce",
                            label = "Download the annotated sce",
                            icon = icon("download"),
+                           style = .actionbutton_biocstyle),
+              verbatimTextOutput("overview_log"),
+              actionButton(inputId = "btn_export_log",
+                           label = "Download the log of labelle's usage",
+                           icon = icon("pen"),
                            style = .actionbutton_biocstyle)
+
             )
           ),
           fluidRow(
@@ -292,6 +298,13 @@ labelle <- function(sce, cell_dictionary = NULL) {
 
     output$overview_anno <- renderPrint({
       table(rv$anno_sce[["new_anno"]])
+    })
+
+    output$overview_log <- renderPrint({
+      list(
+        head(rv$log_entries),
+        dim(rv$log_entries)
+      )
     })
 
 
@@ -455,6 +468,13 @@ labelle <- function(sce, cell_dictionary = NULL) {
 
     observeEvent(input$btn_save_dictionary, {
       showNotification("TODO - saving the dictionary to rds?...", type = "default")
+    })
+
+    observeEvent(input$btn_export_log, {
+      showNotification("TODO - exporting the logfile to rds...", type = "default")
+      message("things about the log")
+      message(nrow(rv$log_entries), "entries")
+      message("latest label set", tail(rv$log_entries$label_assigned, 1))
     })
 
     observeEvent(input$btn_import_dictionary, {
