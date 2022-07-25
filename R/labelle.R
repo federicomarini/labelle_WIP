@@ -382,11 +382,24 @@ labelle <- function(sce, cell_dictionary = NULL) {
         type = "message"
       )
       # apply the label to that subset
+      right_now <- Sys.time()
       colData(rv$anno_sce)[["new_anno"]][cells_id] <- label_to_apply
       # add a timestamp while we are at it
-      colData(rv$anno_sce)[["timestamp_annotation"]][cells_id] <- Sys.time()
+      colData(rv$anno_sce)[["timestamp_annotation"]][cells_id] <- right_now
       # storing also the rationale behind the annotation given
       colData(rv$anno_sce)[["anno_rationale"]][cells_id] <- input$anno_rationale
+
+      # also, logging this operation in the logging df
+      rv$log_entries <- rbind(
+        rv$log_entries,
+        data.frame(
+          timestamp = as.character(right_now),
+          label_assigned = label_to_apply,
+          which_cells = paste0(cells_id, collapse = ","),
+          rationale = input$anno_rationale,
+          user = "Fede"  # can be changed and read by the person running it (or also given as param)
+        )
+      )
 
     })
 
