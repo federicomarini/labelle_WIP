@@ -227,7 +227,12 @@ labelle <- function(sce, cell_dictionary = NULL) {
               actionButton(inputId = "btn_export_log",
                            label = "Download the log of labelle's usage",
                            icon = icon("pen"),
-                           style = .actionbutton_biocstyle)
+                           style = .actionbutton_biocstyle),
+              actionButton(inputId = "btn_store_log",
+                           label = "Store the log as metadata",
+                           icon = icon("pen"),
+                           style = .actionbutton_biocstyle),
+              verbatimTextOutput("log_as_metadata")
 
             )
           ),
@@ -322,6 +327,12 @@ labelle <- function(sce, cell_dictionary = NULL) {
       )
     })
 
+    output$log_as_metadata <- renderPrint({
+      md <- metadata(rv$anno_sce)
+      md_labelle <- md[["labelle_log"]]
+
+      md_labelle
+    })
 
     output$ui_anno_analytics <- renderUI({
       tagList(
@@ -498,6 +509,12 @@ labelle <- function(sce, cell_dictionary = NULL) {
       message("things about the log")
       message(nrow(rv$log_entries), "entries")
       message("latest label set", tail(rv$log_entries$label_assigned, 1))
+    })
+
+    observeEvent(input$btn_store_log, {
+      showNotification("TODO - storing the logs as metadata...", type = "default")
+      metadata(rv$anno_sce)[["labelle_log"]] <- rv$log_entries
+      message("stored ", nrow(rv$log_entries), " log entries as metadata")
     })
 
     observeEvent(input$btn_import_dictionary, {
