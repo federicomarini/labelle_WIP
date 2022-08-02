@@ -245,7 +245,10 @@ labelle <- function(sce, cell_dictionary = NULL) {
             column(
               width = 6,
               h2("som'thin' to think about!"),
-              uiOutput("ui_ideas_collection")
+              uiOutput("ui_ideas_collection"),
+
+              hr(),
+              uiOutput("ui_cl_matching")
             )
           )
         )
@@ -381,6 +384,39 @@ labelle <- function(sce, cell_dictionary = NULL) {
         h4("Some form of celltypepedia, especially if retrieved from other sources where the infos are in?")
       )
     })
+
+    output$ui_cl_matching <- renderUI({
+      tagList(
+        DT::dataTableOutput("tbl_cl_matching")
+      )
+    })
+
+    output$tbl_cl_matching <- DT::renderDataTable({
+      originally_provided <- sort(unique(sce[[input$start_annotation]]))
+      cl_matched <- data.frame(
+        provided_names = originally_provided
+      )
+
+      library("ontoProc")
+      library("stringdist")
+      cl <- getCellOnto()
+
+      # store and update the reactive!
+      all_cl_terms <- cl$name
+      all_cl_ids <- cl$id
+
+      sorted_cl_terms <- sort(all_cl_terms)
+
+      # IT IS IMPERFECT, I KNOW. but still returns some hits with very low effort...
+      cl_matched$matched_names <-
+        all_cl_terms[amatch(originally_provided, all_cl_terms, maxDist = 7)]
+
+      # idea: could return the top 3,4,5 hits for each level
+      DT::datatable(cl_matched,
+                    options = list(scrollX = TRUE))
+
+    })
+
 
     output$ui_celltypedia <- renderUI({
       tagList(
