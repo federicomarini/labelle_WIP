@@ -387,6 +387,11 @@ labelle <- function(sce, cell_dictionary = NULL) {
 
     output$ui_cl_matching <- renderUI({
       tagList(
+        numericInput("strdist_value",
+                     label = "max distance for matching",
+                     value = 5,
+                     min = 0,
+                     max = 8),
         DT::dataTableOutput("tbl_cl_matching")
       )
     })
@@ -409,7 +414,17 @@ labelle <- function(sce, cell_dictionary = NULL) {
 
       # IT IS IMPERFECT, I KNOW. but still returns some hits with very low effort...
       cl_matched$matched_names <-
-        all_cl_terms[amatch(originally_provided, all_cl_terms, maxDist = 7)]
+        all_cl_terms[amatch(originally_provided, all_cl_terms, maxDist = input$strdist_value)]
+
+      strdists <- stringdistmatrix(cl_matched$provided_names, all_cl_terms)
+      bestmatches <- sapply(1:nrow(strdists), function(arg) {
+        this_row <- strdists[arg, ]
+        this_row_ordered <- all_cl_terms[order(this_row)]
+        sug_terms <- head(this_row_ordered)
+        paste(sug_terms, collapse = ",")
+      })
+
+      cl_matched$other_suggestions <- bestmatches
 
       # idea: could return the top 3,4,5 hits for each level
       DT::datatable(cl_matched,
