@@ -392,7 +392,7 @@ labelle <- function(sce, cell_dictionary = NULL) {
     })
 
     output$tbl_cl_matching <- DT::renderDataTable({
-      originally_provided <- sort(unique(sce[[input$start_annotation]]))
+      originally_provided <- sort(unique(rv$anno_sce[[input$start_annotation]]))
       cl_matched <- data.frame(
         provided_names = originally_provided
       )
