@@ -137,7 +137,10 @@ labelle <- function(sce, cell_dictionary = NULL) {
                     head(colnames(sce), 3)
                   ),
                   collapse = "\n"
-                )
+                ),
+                autoComplete = "live",
+                autoCompleters = "static",
+                autoCompleteList = list(sampleids = colnames(sce))
               ),
               actionButton("load_cells",
                            label = "Select cells subset",
