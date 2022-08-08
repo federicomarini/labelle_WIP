@@ -241,17 +241,23 @@ labelle <- function(sce, cell_dictionary = NULL) {
           ),
           fluidRow(
             column(
-              width = 6,
+              width = 5,
               uiOutput("ui_anno_analytics")
 
             ),
             column(
-              width = 6,
+              width = 4,
               h2("som'thin' to think about!"),
               uiOutput("ui_ideas_collection"),
 
               hr(),
               uiOutput("ui_cl_matching")
+            ),
+
+            column(
+              width = 3,
+              h2("labelle's notebook"),
+              uiOutput("ui_notebook")
             )
           )
         )
@@ -435,6 +441,25 @@ labelle <- function(sce, cell_dictionary = NULL) {
 
     })
 
+    output$ui_notebook <- renderUI({
+      notebook_init <- readLines("inst/extdata/labelle_notebook_template.md")
+
+      tagList(
+        shinyAce::aceEditor(
+          "editor_notebook",
+          theme = "solarized_light",
+          height = "200px",
+          value = notebook_init,
+          readOnly = FALSE,
+          wordWrap = TRUE
+        ),
+        actionButton(inputId = "btn_render_notebook",
+                     label = "render the notebook",
+                     icon = icon("book"),
+                     style = .actionbutton_biocstyle)
+      )
+    })
+
 
     output$ui_celltypedia <- renderUI({
       tagList(
@@ -502,6 +527,21 @@ labelle <- function(sce, cell_dictionary = NULL) {
         )
       )
 
+      # to be used in the notebook system, for example
+      id_labelle <- nrow(rv$log_entries)
+
+      # also, RECORD in the notebook where this happened/what have happened
+      ## EXTRA IDEAS: also make it not just appended, but allow readout of the cursor
+      ## to "enter an extra line", just there
+
+      # take from the editor the current state
+      notebook_content <- input$editor_notebook
+      # update the content
+      notebook_content <- c(notebook_content,
+                            paste0("labelle_action", id_labelle))
+      # update editor content
+      notebook_content <- paste0(notebook_content, collapse = "\n")
+      shinyAce::updateAceEditor(session, editorId = "editor_notebook", value = notebook_content)
     })
 
     observeEvent(input$load_cells, {
@@ -570,6 +610,13 @@ labelle <- function(sce, cell_dictionary = NULL) {
       metadata(rv$anno_sce)[["labelle_log"]] <- rv$log_entries
       message("stored ", nrow(rv$log_entries), " log entries as metadata")
     })
+
+    observeEvent(input$btn_render_notebook, {
+      showNotification("TODO - rendering the notebook...", type = "default")
+      message("rendering notebook, from md to html - for preview/download")
+    })
+
+
 
     observeEvent(input$btn_import_dictionary, {
       showNotification("TODO - importing the dictionary on the fly?...", type = "default")
